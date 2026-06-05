@@ -2656,8 +2656,11 @@ function resetGame(mode="single") {
     // Initialize chests (in multiplayer, each player will have individual loot)
     state.chests=CHEST_POSITIONS.map(p=>({ ...p, opened: false, lootItems: null }));
     
-    // Spawn bots (AI enemies for ZH) - but not in boss arena
-    if (state.selectedMap === "boss") {
+    // Spawn bots (AI enemies for ZH) - but NOT in multiplayer mode
+    if (mode === "zhmulti") {
+      // Multiplayer: NO BOTS, pure PvP
+      state.bots = [];
+    } else if (state.selectedMap === "boss") {
       // Boss arena: only spawn the boss, no regular AI
       state.bots = [];
       if (mapData.bossSpawn) {
@@ -2678,7 +2681,7 @@ function resetGame(mode="single") {
         });
       }
     } else {
-      // Regular maps: spawn normal AI enemies
+      // Regular maps: spawn normal AI enemies (solo mode only)
       state.bots=ZH_BOT_SPAWNS.map((sp,i)=>({
         ...sp, x:sp.x, y:sp.y,
         vx:-0.4+Math.random()*0.3, vy:-0.3+Math.random()*0.3,
