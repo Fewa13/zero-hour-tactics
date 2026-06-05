@@ -3282,9 +3282,17 @@ function swingKnife() {
   const baseDamage = 30;
   const damage = Math.round(baseDamage * getMeleeDamageMultiplier());
   if (state.mode === "multi" || state.mode === "zhmulti") {
-    state.socket?.send(JSON.stringify({ type:"hit", target:bestTarget.id, damage }));
-    state.playerHitFlashes[bestTarget.id] = 0.3;
-    showMessage("Knife hit");
+    // Check if target is a player or a bot
+    const isPlayer = bestTarget.id && bestTarget.id.startsWith('p');
+    if (isPlayer) {
+      // Send damage to server for players
+      state.socket?.send(JSON.stringify({ type:"hit", target:bestTarget.id, damage }));
+      state.playerHitFlashes[bestTarget.id] = 0.3;
+      showMessage("Knife hit");
+    } else {
+      // Damage bots locally
+      damageLocalTarget(bestTarget, damage);
+    }
   } else {
     damageLocalTarget(bestTarget, damage);
   }
@@ -3334,10 +3342,18 @@ function shoot(opts = {}) {
     let dmg=calcDamage(bestZone,gs);
     if(dmg>0) dmg=applyArmorToTarget(dmg,bestZone.zone,bestTarget);
     if(dmg<=0){showMessage("Miss");} else {
-      if(state.mode==="multi") {
-        state.socket?.send(JSON.stringify({type:"hit",target:bestTarget.id,damage:dmg}));
-        state.playerHitFlashes[bestTarget.id] = 0.3;
-        showMessage(`${bestZone.name} hit`);
+      if(state.mode==="multi" || state.mode==="zhmulti") {
+        // Check if target is a player or a bot
+        const isPlayer = bestTarget.id && bestTarget.id.startsWith('p');
+        if (isPlayer) {
+          // Send damage to server for players
+          state.socket?.send(JSON.stringify({type:"hit",target:bestTarget.id,damage:dmg}));
+          state.playerHitFlashes[bestTarget.id] = 0.3;
+          showMessage(`${bestZone.name} hit`);
+        } else {
+          // Damage bots locally
+          damageLocalTarget(bestTarget, dmg, `${bestZone.name} hit`);
+        }
       } else {
         damageLocalTarget(bestTarget, dmg, `${bestZone.name} hit`);
       }
