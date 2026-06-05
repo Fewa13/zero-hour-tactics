@@ -1,0 +1,80 @@
+╔══════════════════════════════════════════════════════════════╗
+║          ZERO HOUR TACTICS - QUICK START GUIDE              ║
+╚══════════════════════════════════════════════════════════════╝
+
+⚠️  IMPORTANT: You MUST run the server to play!
+
+📋 STEP-BY-STEP INSTRUCTIONS:
+
+1️⃣  INSTALL NODE.JS (if not installed)
+   → Download from: https://nodejs.org/
+   → Install version 14 or higher
+
+2️⃣  OPEN TERMINAL/COMMAND PROMPT
+   → Windows: Press Win+R, type "cmd", press Enter
+   → Mac: Press Cmd+Space, type "terminal", press Enter
+   → Navigate to game folder: cd path/to/game/folder
+
+3️⃣  INSTALL DEPENDENCIES (first time only)
+   → Type: npm install
+   → Press Enter
+   → Wait for installation to complete
+
+4️⃣  START THE SERVER
+   → Type: npm start
+   → Press Enter
+   → You should see: "Server running on port 3000"
+
+5️⃣  OPEN YOUR BROWSER
+   → Go to: http://localhost:3000
+   → DO NOT open index.html directly!
+   → MUST use http://localhost:3000
+
+6️⃣  CREATE ACCOUNT & PLAY
+   → Click "Zero Hour" tab
+   → Click "Login/Register"
+   → Create new account
+   → Start playing!
+
+═══════════════════════════════════════════════════════════════
+
+❌ COMMON ERRORS:
+
+Error: "Server error - check console"
+→ Solution: Server is not running. Run: npm start
+
+Error: "Cannot find module"
+→ Solution: Run: npm install
+
+Error: "Port already in use"
+→ Solution: Close other programs using port 3000
+→ Or change port in server.js
+
+Error: "EACCES permission denied"
+→ Solution (Mac/Linux): Run: sudo npm install
+
+═══════════════════════════════════════════════════════════════
+
+🌐 DEPLOY TO INTERNET (Optional):
+
+Want others to play online?
+
+1. Railway (Easiest - Free)
+   → Go to: https://railway.app/
+   → Sign up with GitHub
+   → Upload your game folder
+   → Get URL: https://your-game.railway.app
+
+2. Render (Free)
+   → Go to: https://render.com/
+   → Create "New Web Service"
+   → Upload game folder
+   → Get URL: https://your-game.onrender.com
+
+See README.md for detailed deployment instructions.
+
+═══════════════════════════════════════════════════════════════
+
+🎮 ENJOY THE GAME!
+
+Questions? Check README.md for full documentation.

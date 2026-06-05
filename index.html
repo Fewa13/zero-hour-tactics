@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>零点行动</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <canvas id="game" width="960" height="540" aria-label="Zero Hour Battle Field game"></canvas>
+
+      <section id="menu" class="menu">
+        <div class="brand">Zero Hour Battle Field</div>
+        <h1>Zero Hour Battle Field</h1>
+        <div class="season-title" id="seasonTitle">Season 1</div>
+        <div class="credit" id="creditText">Made by Ilovegames</div>
+        <p>Battle Field: classic shooter. Zero Hour Tactics: gear up and survive.</p>
+
+        <!-- top bar: mode tabs + account button -->
+        <div class="menu-topbar">
+          <div class="mode-tabs">
+            <button id="battleFieldTab" type="button">Battle Field</button>
+            <button id="zeroHourTab" class="secondary" type="button">Zero Hour Tactics</button>
+          </div>
+          <button id="languageButton" class="secondary account-btn" type="button">Language / 语言</button>
+          <button id="openLoginModal" class="secondary account-btn" type="button">Account</button>
+        </div>
+
+        <!-- BATTLE FIELD PANEL -->
+        <section id="battleFieldPanel">
+          <label class="level-select">
+            Level
+            <select id="levelSelect">
+              <option value="1">Level 1 – 5 enemies</option>
+              <option value="2">Level 2 – 10 enemies</option>
+              <option value="3">Level 3 – 15 enemies</option>
+            </select>
+          </label>
+          <div class="mode-actions">
+            <button id="startButton" type="button">Start Single Player</button>
+            <button id="multiButton" class="secondary" type="button">Start 2 Player</button>
+          </div>
+          <div class="multiplayer-fields">
+            <label>
+              Room
+              <input id="roomCode" value="room1" maxlength="18" />
+            </label>
+            <label>
+              Server
+              <input id="serverUrl" value="wss://ilovegames-shooter-1.fewa3729.workers.dev/ws" />
+            </label>
+          </div>
+          <div class="keys">
+            <span>WASD move</span>
+            <span>Mouse aim</span>
+            <span>Click shoot</span>
+            <span>Right-click / Q / E: ADS</span>
+            <span>Space jump</span>
+            <span>R reload</span>
+          </div>
+        </section>
+
+        <!-- ZERO HOUR PANEL -->
+        <section id="zeroHourPanel" class="zero-hour-panel" hidden>
+          <div class="zero-topbar">
+            <div class="zero-summary">
+              <strong id="zhMoneyValue">$0</strong>
+              <span id="zhEquipSummary"></span>
+            </div>
+            <button id="openShopButton" type="button">Shop</button>
+            <button id="openSellButton" class="secondary" type="button">Sell</button>
+            <button id="openStorageButton" class="secondary" type="button">Storage</button>
+            <button id="redeemCodeButton" class="secondary" type="button">Redeem Code</button>
+            <button id="openSetoutButton" type="button">Set Out</button>
+          </div>
+          <div class="zh-equip-row">
+            <div class="equip-slot" id="equip-gun">
+              <span class="equip-label">Gun</span>
+              <span class="equip-value" id="equipped-gun">None</span>
+            </div>
+            <div class="equip-slot" id="equip-armor">
+              <span class="equip-label">Armor</span>
+              <span class="equip-value" id="equipped-armor">None</span>
+            </div>
+            <div class="equip-slot" id="equip-helmet">
+              <span class="equip-label">Helmet</span>
+              <span class="equip-value" id="equipped-helmet">None</span>
+            </div>
+            <div class="equip-slot" id="equip-backpack">
+              <span class="equip-label">Backpack</span>
+              <span class="equip-value" id="equipped-backpack">None</span>
+            </div>
+            <div class="equip-slot" id="equip-ammo">
+              <span class="equip-label">Ammo</span>
+              <span class="equip-value" id="equipped-ammo">None</span>
+            </div>
+          </div>
+          <label class="level-select">
+            Map Selection
+            <select id="mapSelect">
+              <option value="urban">Urban Warfare</option>
+              <option value="village">Pastoral Village</option>
+              <option value="boss">Boss Arena</option>
+            </select>
+          </label>
+          <div class="mode-actions">
+            <button id="zhStartButton" type="button">Deploy to Zero Hour</button>
+            <button id="zhMultiButton" class="secondary" type="button">Start Multiplayer</button>
+          </div>
+          <div class="multiplayer-fields">
+            <label>
+              Room
+              <input id="zhRoomCode" value="zh-room1" maxlength="18" />
+            </label>
+            <label>
+              Server
+              <input id="zhServerUrl" value="wss://ilovegames-shooter-1.fewa3729.workers.dev/ws" />
+            </label>
+          </div>
+          <div class="keys">
+            <span>WASD move</span>
+            <span>Mouse aim</span>
+            <span>Click shoot</span>
+            <span>Right-click / Q / E: ADS</span>
+            <span>R reload</span>
+            <span>F open chest</span>
+            <span>Phone Open button opens chests</span>
+            <span>Tab backpack</span>
+            <span>Green smoke = extract (10s)</span>
+          </div>
+        </section>
+      </section>
+
+      <!-- LOGIN MODAL (after menu so it stacks above) -->
+      <div id="loginModal" class="modal-backdrop" hidden>
+        <div class="modal-box">
+          <h2>Account</h2>
+          <div id="accountStatus" class="account-status">Not logged in</div>
+          <div class="modal-fields">
+            <input id="loginName" placeholder="Username" autocomplete="username" />
+            <input id="loginPass" placeholder="Password" type="password" autocomplete="current-password" />
+          </div>
+          <div class="modal-actions">
+            <button id="loginButton" type="button">Login</button>
+            <button id="createAccountButton" class="secondary" type="button">Create Account</button>
+            <button id="logoutButton" class="secondary" type="button">Logout</button>
+            <button id="exportAccountButton" class="secondary" type="button">Export Code</button>
+            <button id="importAccountButton" class="secondary" type="button">Import Code</button>
+            <button id="closeLoginModal" class="secondary" type="button">Close</button>
+          </div>
+          <p class="login-hint">Use Export/Import to move your account to another device. Cloud sync runs automatically when the server is available.</p>
+        </div>
+      </div>
+
+      <!-- BACKPACK (Tab in raid) -->
+      <div id="backpackModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2>Backpack</h2>
+            <span id="backpackSlotCount" class="slot-count">0 / 20</span>
+          </div>
+          <div class="raid-equip-row">
+            <div class="equip-slot"><span class="equip-label">Weapon</span><span class="equip-value" id="raidEquippedGun">—</span></div>
+            <div class="equip-slot"><span class="equip-label">Armor</span><span class="equip-value" id="raidEquippedArmor">—</span></div>
+            <div class="equip-slot"><span class="equip-label">Helmet</span><span class="equip-value" id="raidEquippedHelmet">—</span></div>
+          </div>
+          <div id="backpackSlots" class="slot-grid"></div>
+          <p class="panel-hint">Click an item to drop it · Hover for prices · Tab to close</p>
+        </div>
+      </div>
+
+      <!-- CHEST LOOT UI -->
+      <div id="chestModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2>Chest</h2>
+            <button id="closeChestModal" class="secondary small" type="button">Close</button>
+          </div>
+          <div class="loot-panels">
+            <section>
+              <h3>Chest contents</h3>
+              <div id="chestLootSlots" class="slot-grid"></div>
+            </section>
+            <section>
+              <h3>Your backpack</h3>
+              <div id="chestBackpackSlots" class="slot-grid"></div>
+            </section>
+          </div>
+          <p class="panel-hint">Click chest items to take · Tab or F to close</p>
+        </div>
+      </div>
+
+      <!-- SHOP MODAL -->
+      <div id="shopModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="shop-header">
+            <h2>Shop</h2>
+            <div class="zero-summary">
+              <strong id="moneyValue">$0</strong>
+              <span id="inventoryCount">0 items</span>
+            </div>
+            <button id="closeShopModal" class="secondary" type="button">Close</button>
+          </div>
+          <div class="shop-layout">
+            <nav id="shopCategoryList" class="shop-category-list" aria-label="Shop categories">
+              <button class="shop-category active" data-shop-category="armors" type="button">Armors</button>
+              <button class="shop-category" data-shop-category="helmets" type="button">Helmets</button>
+              <button class="shop-category" data-shop-category="backpacks" type="button">Backpacks</button>
+              <button class="shop-category" data-shop-category="guns" type="button">Guns</button>
+              <button class="shop-category" data-shop-category="ammo" type="button">Ammo</button>
+              <button class="shop-category" data-shop-category="meds" type="button">Meds</button>
+              <button class="shop-category" data-shop-category="supplies" type="button">Supplies</button>
+            </nav>
+            <section class="shop-active-panel">
+              <h3 id="activeShopTitle">Armors</h3>
+              <div id="activeShopList" class="shop-list"></div>
+            </section>
+            <section class="shop-inventory-panel">
+              <h3>Inventory</h3>
+              <div id="inventoryList" class="inventory-list"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELL -->
+      <div id="sellModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2>Sell Items</h2>
+            <button id="closeSellModal" class="secondary" type="button">Close</button>
+          </div>
+          <p class="panel-hint">Click an item in your stash to sell it.</p>
+          <div id="sellItemList" class="shop-list"></div>
+        </div>
+      </div>
+
+      <!-- STORAGE (50 slots, safe on death) -->
+      <div id="storageModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2>Storage</h2>
+            <span id="storageSlotCount" class="slot-count">0 / 50</span>
+            <button id="closeStorageModal" class="secondary" type="button">Close</button>
+          </div>
+          <p class="panel-hint">Click a storage slot to move item back to stash · Click stash item below to deposit</p>
+          <div id="storageSlots" class="slot-grid storage-grid"></div>
+          <h3>Stash (deposit from here)</h3>
+          <div id="storageStashList" class="shop-list"></div>
+        </div>
+      </div>
+
+      <!-- SET OUT (equip loadout) -->
+      <div id="setoutModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2>Set Out — Raid Loadout</h2>
+            <button id="closeSetoutModal" class="secondary" type="button">Close</button>
+          </div>
+          <p class="panel-hint">Choose your gear slots, then move ammo or supplies from stash into the raid backpack.</p>
+          <div class="setout-loadout">
+            <button class="equip-slot setout-gear-slot" data-category="gun" type="button"><span class="equip-label">Gun</span><span class="equip-value" id="setoutGun">None</span></button>
+            <button class="equip-slot setout-gear-slot" data-category="armor" type="button"><span class="equip-label">Armor</span><span class="equip-value" id="setoutArmor">None</span></button>
+            <button class="equip-slot setout-gear-slot" data-category="helmet" type="button"><span class="equip-label">Helmet</span><span class="equip-value" id="setoutHelmet">None</span></button>
+            <button class="equip-slot setout-gear-slot" data-category="backpack" type="button"><span class="equip-label">Backpack</span><span class="equip-value" id="setoutBackpack">None</span></button>
+            <button class="equip-slot setout-gear-slot" data-category="ammoType" type="button"><span class="equip-label">Ammo</span><span class="equip-value" id="setoutAmmo">None</span></button>
+          </div>
+          <div class="setout-sections">
+            <section>
+              <h3>Raid Backpack <span id="setoutSlotCount" class="slot-count">0 / 20</span></h3>
+              <div id="setoutBackpackSlots" class="slot-grid"></div>
+              <p class="panel-hint">Click a backpack slot to move it back to stash.</p>
+            </section>
+            <section>
+              <h3>Stash</h3>
+              <div id="setoutStashList" class="shop-list"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div id="gearPickerModal" class="modal-backdrop" hidden>
+        <div class="modal-box wide">
+          <div class="panel-header">
+            <h2 id="gearPickerTitle">Choose Gear</h2>
+            <button id="closeGearPickerModal" class="secondary" type="button">Close</button>
+          </div>
+          <div id="gearPickerList" class="shop-list"></div>
+        </div>
+      </div>
+      <!-- CLASS SELECTION MODAL -->
+      <div id="classModal" class="modal-backdrop" hidden>
+        <div class="modal-box">
+          <h2>Choose Your Operator Class</h2>
+          <p class="panel-hint">Select your character class for this raid. Each class has unique abilities and passives.</p>
+          <div class="class-selection">
+            <button id="selectAssault" class="class-card" type="button">
+              <h3>⚔️ Assault Operator</h3>
+              <p><strong>突击位</strong></p>
+              <div class="class-abilities">
+                <p><strong>Passive:</strong> +20% Movement Speed, +50% Melee Damage</p>
+                <p><strong>Ability 1 (Key 1):</strong> Smoke Grenade - Blocks vision</p>
+                <p><strong>Ability 2 (Key 2):</strong> Teleport Kunai - Throw and teleport</p>
+              </div>
+            </button>
+            <button id="selectMedic" class="class-card" type="button">
+              <h3>❤️ Medic Operator</h3>
+              <p><strong>医疗干员</strong></p>
+              <div class="class-abilities">
+                <p><strong>Passive:</strong> +50% Medical Item Effectiveness</p>
+                <p><strong>Ability 1 (Key 1):</strong> Instant Heal - Restore 30 HP instantly</p>
+                <p><strong>Ability 2 (Key 2):</strong> White Dove - Speed boost + smoke trail</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <section id="hud" class="hud" aria-live="polite">
+        <div>
+          <span class="label">Enemies</span>
+          <strong id="targets">0</strong>
+        </div>
+        <div>
+          <span class="label">HP</span>
+          <strong id="hp">100</strong>
+        </div>
+        <div>
+          <span class="label">Ammo</span>
+          <strong id="ammo">30</strong>
+        </div>
+        <div>
+          <span class="label">Time</span>
+          <strong id="time">90</strong>
+        </div>
+        <div id="hudGear" class="hud-gear" hidden>
+          <span class="label">Gear</span>
+          <strong id="hudGearText">—</strong>
+        </div>
+        <button id="quitButton" class="quit-button" type="button">Quit (P)</button>
+      </section>
+
+      <div id="message" class="message" hidden></div>
+
+      <section id="touchControls" class="touch-controls" aria-label="Mobile controls">
+        <div id="joystick" class="joystick" aria-label="Move">
+          <div id="joystickKnob" class="joystick-knob"></div>
+        </div>
+        <div class="touch-actions">
+          <button id="touchAds" class="touch-button ads" type="button">ADS</button>
+          <button id="touchReload" class="touch-button reload" type="button">Reload</button>
+          <button id="touchJump" class="touch-button jump" type="button">Jump</button>
+          <button id="touchOpen" class="touch-button open" type="button">Open</button>
+          <button id="touchShoot" class="touch-button shoot" type="button">Shoot</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
