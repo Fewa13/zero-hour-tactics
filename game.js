@@ -2865,14 +2865,10 @@ function quitGame() {
 function handleNetworkMessage(msg) {
   if (msg.type==="welcome") {
     state.playerId=msg.id;
-    state.initialSyncDone = false; // Flag to sync position on first state message
     showMessage(`Joined as player ${msg.number}`);
-    // Send initial route info for zhmulti mode
-    if (state.mode === "zhmulti" && state.myRoute) {
-      state.socket.send(JSON.stringify({
-        type: "zhroute",
-        route: state.myRoute
-      }));
+    // Immediately send current position to server
+    if (state.mode === "zhmulti") {
+      sendNetworkUpdate(true);
     }
   }
   // A full room only matters for multiplayer; Zero Hour solo runs locally
@@ -2884,12 +2880,9 @@ function handleNetworkMessage(msg) {
     // In Zero Hour solo, enemies are client-side bots, HP managed locally
     // In zhmulti, enable PvP damage from server
     if (me && (state.mode==="multi" || state.mode==="zhmulti")) {
-      // Sync position on first state message OR when respawning
-      if (!state.initialSyncDone || (state.isDead&&me.alive)) {
-        state.x=me.x; state.y=me.y; state.angle=me.angle; state.pitch=me.pitch;
-        state.jumpHeight=0; state.jumpVelocity=0; state.isDead=false;
-        state.initialSyncDone = true;
-        if (state.isDead && me.alive) showMessage("Respawned");
+      // Only sync HP and alive status, NOT position (let each client control their own position)
+      if (state.isDead&&me.alive) {
+        state.isDead=false; showMessage("Respawned");
       }
       state.hp=me.hp;
       if (!me.alive) { state.isDead=true; state.isFiring=false; showMessage("Respawning..."); }
